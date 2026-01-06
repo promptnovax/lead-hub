@@ -6,37 +6,47 @@ export type ServicePitch = 'ai_automation' | 'website' | 'full_package';
 
 export interface Lead {
   id: string;
+  user_id: string;
   
   // Basic Info
-  date: Date;
+  lead_date: string;
   name: string;
-  leadSource: LeadSource;
-  otherSource?: string;
+  lead_source: LeadSource;
+  other_source?: string | null;
   phone: string;
   email: string;
   country: string;
   city: string;
-  clientType: ClientType;
-  servicePitch: ServicePitch;
+  client_type: ClientType;
+  service_pitch: ServicePitch;
   
   // Activity Tracking
-  firstMessageSent: boolean;
-  replyReceived: boolean;
+  first_message_sent: boolean;
+  reply_received: boolean;
   seen: boolean;
   interested: boolean;
-  followUpNeeded: boolean;
-  followUpDate?: Date;
+  follow_up_needed: boolean;
+  follow_up_date?: string | null;
   
   // Proof Section
-  screenshotFile?: string; // Base64 or URL for preview
-  screenshotFileName?: string;
+  screenshot_url?: string | null;
+  screenshot_file_name?: string | null;
   notes: string;
   
   // Outcome
   status: LeadStatus;
-  dealValue?: number;
-  reasonLost?: ReasonLost;
-  otherReasonLost?: string;
+  deal_value?: number | null;
+  reason_lost?: ReasonLost | null;
+  other_reason_lost?: string | null;
   
-  createdAt: Date;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Profile {
+  id: string;
+  user_id: string;
+  full_name?: string | null;
+  created_at: string;
+  updated_at: string;
 }
