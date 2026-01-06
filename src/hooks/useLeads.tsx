@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadSource, LeadStatus, ClientType, ServicePitch } from '@/types/database';
 import { toast } from 'sonner';
+import { useAuth } from './useAuth';
 
 // Default user ID for non-authenticated usage
 const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';
@@ -33,10 +32,13 @@ export function useLeads() {
     setLoading(false);
   };
 
-  const addLead = async () => {
+  const addLead = async (leadData?: Partial<Lead>) => {
+    const { user } = useAuth();
     const today = new Date().toISOString().split('T')[0];
     
+    // Default values merged with provided leadData
     const newLead = {
+      user_id: user?.id || DEFAULT_USER_ID,
       lead_date: today,
       name: '',
       salesperson_name: '',
@@ -54,6 +56,7 @@ export function useLeads() {
       follow_up_needed: false,
       notes: '',
       status: 'new' as LeadStatus,
+      ...leadData,
     };
 
     try {
@@ -70,17 +73,23 @@ export function useLeads() {
           hint: error.hint,
           code: error.code
         });
+        
+        if (error.code === '23505') {
+          toast.error('A lead with this information already exists.');
+        } else {
+          toast.error('Failed to add lead: ' + error.message);
+        }
         throw error;
       }
       
       if (data) {
         setLeads([data as Lead, ...leads]);
         toast.success('New lead added');
+        return data;
       }
     } catch (error: any) {
       console.error('Error adding lead:', error);
-      const errorMessage = error?.message || error?.hint || 'Unknown error';
-      toast.error('Failed to add lead: ' + errorMessage);
+      return null;
     }
   };
 

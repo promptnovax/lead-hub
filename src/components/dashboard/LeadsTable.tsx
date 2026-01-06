@@ -78,17 +78,17 @@ export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: Le
             {/* Category Headers */}
             <thead>
               <tr className="bg-gradient-to-r from-primary/20 to-accent/20">
-                <th colSpan={11} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
-                  📋 Basic Info
+                <th colSpan={11} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                  <span className="flex items-center gap-2">📋 Basic Information</span>
                 </th>
-                <th colSpan={6} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
-                  📊 Activity Tracking
+                <th colSpan={6} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                  <span className="flex items-center gap-2">📊 Activity Tracking</span>
                 </th>
-                <th colSpan={2} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
-                  📷 Proof Section
+                <th colSpan={2} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                  <span className="flex items-center gap-2">📷 Verification</span>
                 </th>
-                <th colSpan={4} className="px-4 py-3 text-left font-bold text-primary">
-                  🎯 Outcome
+                <th colSpan={4} className="px-6 py-4 text-left font-bold text-slate-900">
+                  <span className="flex items-center gap-2">🎯 Sales Outcome</span>
                 </th>
               </tr>
               {/* Column Headers */}
@@ -194,9 +194,9 @@ function LeadRow({
   return (
     <tr 
       className={`
-        border-t border-border/50 transition-colors
-        ${isLeadInvalid(lead) ? 'bg-destructive/10 hover:bg-destructive/15' : 'hover:bg-muted/40'}
-        ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}
+        border-t border-slate-200/50 dark:border-slate-800 transition-colors
+        ${isLeadInvalid(lead) ? 'bg-rose-50/30 dark:bg-rose-950/10 hover:bg-rose-50/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
+        ${index % 2 === 0 ? 'bg-transparent' : 'bg-slate-50/30 dark:bg-slate-800/10'}
       `}
     >
       {/* Basic Info */}

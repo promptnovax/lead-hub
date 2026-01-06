@@ -22,14 +22,14 @@ const Admin = () => {
   const closedLeads = leads.filter(l => l.status === 'closed').length;
   const lostLeads = leads.filter(l => l.status === 'lost').length;
   const activeLeads = leads.filter(l => ['new', 'replied', 'interested'].includes(l.status)).length;
-  
+
   const totalRevenue = leads
     .filter(l => l.status === 'closed' && l.deal_value)
     .reduce((sum, l) => sum + (l.deal_value || 0), 0);
-  
+
   const averageDealValue = closedLeads > 0 ? totalRevenue / closedLeads : 0;
   const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
-  
+
   // Group leads by salesperson
   const leadsBySalesperson = leads.reduce((acc, lead) => {
     const name = lead.salesperson_name || 'Unassigned';
@@ -63,7 +63,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <Toaster position="top-right" />
-      
+
       {/* Header */}
       <header className="border-b border-border/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm">
         <div className="max-w-[1600px] mx-auto px-6 py-6">
@@ -78,48 +78,56 @@ const Admin = () => {
 
       <main className="max-w-[1600px] mx-auto p-6 space-y-6">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6 bg-white dark:bg-slate-800 border-none shadow-sm hover:shadow-md transition-all border-l-4 border-blue-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-xs font-medium uppercase tracking-wide">Total Leads</p>
-                <p className="text-4xl font-bold mt-2">{totalLeads}</p>
-                <p className="text-blue-100 text-sm mt-1">All time</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Leads</p>
+                <p className="text-4xl font-bold mt-2 text-slate-900 dark:text-white">{totalLeads}</p>
+                <p className="text-slate-400 text-sm mt-1 font-medium">Capture Pipeline</p>
               </div>
-              <Users className="w-12 h-12 opacity-20" />
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+                <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white">
+          <Card className="p-6 bg-white dark:bg-slate-800 border-none shadow-sm hover:shadow-md transition-all border-l-4 border-indigo-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-xs font-medium uppercase tracking-wide">Active Leads</p>
-                <p className="text-4xl font-bold mt-2">{activeLeads}</p>
-                <p className="text-green-100 text-sm mt-1">In progress</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Pipeline</p>
+                <p className="text-4xl font-bold mt-2 text-slate-900 dark:text-white">{activeLeads}</p>
+                <p className="text-slate-400 text-sm mt-1 font-medium">In Conversion</p>
               </div>
-              <Target className="w-12 h-12 opacity-20" />
+              <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl">
+                <Target className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+              </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+          <Card className="p-6 bg-white dark:bg-slate-800 border-none shadow-sm hover:shadow-md transition-all border-l-4 border-emerald-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-xs font-medium uppercase tracking-wide">Total Revenue</p>
-                <p className="text-3xl font-bold mt-2">${totalRevenue.toLocaleString()}</p>
-                <p className="text-purple-100 text-sm mt-1">From {closedLeads} deals</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Gross Revenue</p>
+                <p className="text-3xl font-bold mt-2 text-slate-900 dark:text-white">${totalRevenue.toLocaleString()}</p>
+                <p className="text-slate-400 text-sm mt-1 font-medium">{closedLeads} Settled Deals</p>
               </div>
-              <DollarSign className="w-12 h-12 opacity-20" />
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
+                <DollarSign className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+              </div>
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-amber-500 to-amber-600 text-white">
+          <Card className="p-6 bg-white dark:bg-slate-800 border-none shadow-sm hover:shadow-md transition-all border-l-4 border-amber-500">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-amber-100 text-xs font-medium uppercase tracking-wide">Conversion Rate</p>
-                <p className="text-4xl font-bold mt-2">{conversionRate}%</p>
-                <p className="text-amber-100 text-sm mt-1">Success rate</p>
+                <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Efficiency</p>
+                <p className="text-4xl font-bold mt-2 text-slate-900 dark:text-white">{conversionRate}%</p>
+                <p className="text-slate-400 text-sm mt-1 font-medium">Win Probability</p>
               </div>
-              <TrendingUp className="w-12 h-12 opacity-20" />
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl">
+                <TrendingUp className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+              </div>
             </div>
           </Card>
         </div>
@@ -204,7 +212,7 @@ const Admin = () => {
                         <span className="text-muted-foreground">{count} ({percentage}%)</span>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all"
                           style={{ width: `${percentage}%` }}
                         />
