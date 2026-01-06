@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import { useLeads } from '@/hooks/useLeads';
+import { LeadsTable } from '@/components/dashboard/LeadsTable';
 import { Plus, Loader2, TrendingUp, Filter, Users, Target, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
