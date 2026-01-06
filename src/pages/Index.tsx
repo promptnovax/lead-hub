@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Download } from 'lucide-react';
 
 const Index = () => {
   const { leads, loading: leadsLoading, addLead, updateLead, deleteLead, uploadScreenshot } = useLeads();
@@ -37,10 +38,46 @@ const Index = () => {
   const todayLeads = filteredLeads.filter(l => l.lead_date === today).length;
   const invalidLeads = filteredLeads.filter(l => !l.screenshot_url).length;
   const closedLeads = filteredLeads.filter(l => l.status === 'closed').length;
-  const totalValue = filteredLeads
-    .filter(l => l.status === 'closed' && l.deal_value)
-    .reduce((sum, l) => sum + (l.deal_value || 0), 0);
   const conversionRate = filteredLeads.length > 0 ? Math.round((closedLeads / filteredLeads.length) * 100) : 0;
+
+  const downloadLeads = () => {
+    if (filteredLeads.length === 0) {
+      toast.error("No leads to download");
+      return;
+    }
+
+    const headers = ["Date", "Name", "Salesperson", "Source", "Other Source", "Phone", "Email", "Country", "City", "Client Type", "Service", "Status", "Value", "Notes"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredLeads.map(l => [
+        l.lead_date,
+        `"${l.name}"`,
+        `"${l.salesperson_name}"`,
+        l.lead_source,
+        `"${l.other_source || ''}"`,
+        `"${l.phone}"`,
+        `"${l.email}"`,
+        `"${l.country}"`,
+        `"${l.city}"`,
+        l.client_type,
+        l.service_pitch,
+        l.status,
+        l.deal_value || 0,
+        `"${(l.notes || '').replace(/"/g, '""')}"`
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `leadhub_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Leads exported successfully");
+  };
 
   if (leadsLoading) {
     return (
@@ -58,20 +95,28 @@ const Index = () => {
       <Toaster position="top-right" />
 
       {/* Header */}
-      <header className="border-b border-border/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Lead Management Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground">Track and manage your sales leads efficiently</p>
+      <header className="border-b border-border/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-sm sticky top-0 z-30">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <img src="/images/logo.png" alt="Astraventa Logo" className="h-10 sm:h-12 w-auto object-contain" />
+              <div className="hidden sm:block h-8 w-px bg-slate-200 dark:bg-slate-700 mx-2" />
+              <div className="space-y-0.5">
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Lead Management
+                </h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-semibold">Track & Grow</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <Button onClick={downloadLeads} variant="outline" size="sm" className="gap-2 rounded-full px-4 border-primary/20 hover:bg-primary/5 text-primary">
+                <Download className="w-4 h-4" />
+                <span className="hidden xs:inline">Download</span>
+              </Button>
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+                <Filter className="w-4 h-4 text-muted-foreground ml-2" />
                 <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[110px] sm:w-[130px] border-none bg-transparent h-8 focus:ring-0">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -82,9 +127,9 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={() => addLead()} size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-all rounded-full px-6 bg-primary hover:bg-primary/90">
-                <Plus className="w-5 h-5" />
-                Add New Lead
+              <Button onClick={() => addLead()} size="sm" className="gap-2 shadow-md hover:shadow-lg transition-all rounded-full px-5 bg-primary hover:bg-primary/90 min-w-[120px]">
+                <Plus className="w-4 h-4" />
+                Add Lead
               </Button>
             </div>
           </div>

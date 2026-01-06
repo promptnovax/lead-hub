@@ -2,7 +2,7 @@ import { Lead, LeadSource, LeadStatus, ReasonLost, ClientType, ServicePitch } fr
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Trash2, AlertCircle, Upload, Image } from 'lucide-react';
+import { Trash2, AlertCircle, Upload, Image, Download } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -72,92 +72,93 @@ export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: Le
 
   return (
     <TooltipProvider>
-      <div className="rounded-xl border border-border overflow-hidden shadow-lg">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            {/* Category Headers */}
-            <thead>
-              <tr className="bg-gradient-to-r from-primary/20 to-accent/20">
-                <th colSpan={11} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
-                  <span className="flex items-center gap-2">📋 Basic Information</span>
-                </th>
-                <th colSpan={6} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
-                  <span className="flex items-center gap-2">📊 Activity Tracking</span>
-                </th>
-                <th colSpan={2} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
-                  <span className="flex items-center gap-2">📷 Verification</span>
-                </th>
-                <th colSpan={4} className="px-6 py-4 text-left font-bold text-slate-900">
-                  <span className="flex items-center gap-2">🎯 Sales Outcome</span>
-                </th>
-              </tr>
-              {/* Column Headers */}
-              <tr className="bg-muted/70 border-t border-border">
-                {/* Basic Info */}
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead Name</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Salesperson</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Other</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Phone</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Country</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">City</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Client Type</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">Service</th>
-                
-                {/* Activity Tracking */}
-                <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Msg</th>
-                <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Reply</th>
-                <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Seen</th>
-                <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Int.</th>
-                <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">F/U</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">F/U Date</th>
-                
-                {/* Proof Section */}
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Screenshot</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">Notes</th>
-                
-                {/* Outcome */}
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lost Reason</th>
-                <th className="w-10"></th>
-              </tr>
-            </thead>
-            <tbody className="bg-card">
-              {leads.map((lead, index) => (
-                <LeadRow 
-                  key={lead.id}
-                  lead={lead}
-                  index={index}
-                  isLeadInvalid={isLeadInvalid}
-                  onUpdate={onUpdate}
-                  onDelete={onDelete}
-                  onUploadScreenshot={onUploadScreenshot}
-                  sourceOptions={sourceOptions}
-                  statusOptions={statusOptions}
-                  reasonLostOptions={reasonLostOptions}
-                  clientTypeOptions={clientTypeOptions}
-                  servicePitchOptions={servicePitchOptions}
-                />
-              ))}
-              
-              {leads.length === 0 && (
-                <tr>
-                  <td colSpan={22} className="px-6 py-16 text-center">
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <span className="text-4xl">📋</span>
-                      <p className="font-medium">No leads yet</p>
-                      <p className="text-sm">Click "Add Lead" to get started</p>
-                    </div>
-                  </td>
+      <div className="rounded-xl border border-border shadow-lg overflow-hidden flex flex-col">
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+          <div className="min-w-[1400px]">
+            <table className="w-full text-sm border-collapse">
+              {/* Category Headers */}
+              <thead>
+                <tr className="bg-gradient-to-r from-primary/20 to-accent/20">
+                  <th colSpan={11} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                    <span className="flex items-center gap-2">📋 Basic Information</span>
+                  </th>
+                  <th colSpan={6} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                    <span className="flex items-center gap-2">📊 Activity Tracking</span>
+                  </th>
+                  <th colSpan={2} className="px-6 py-4 text-left font-bold text-slate-900 border-r border-slate-200 dark:border-slate-700/50">
+                    <span className="flex items-center gap-2">📷 Verification</span>
+                  </th>
+                  <th colSpan={4} className="px-6 py-4 text-left font-bold text-slate-900">
+                    <span className="flex items-center gap-2">🎯 Sales Outcome</span>
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+                {/* Column Headers */}
+                <tr className="bg-muted/70 border-t border-border">
+                  {/* Basic Info */}
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead Name</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Salesperson</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Other</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Phone</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Country</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">City</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Client Type</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">Service</th>
+
+                  {/* Activity Tracking */}
+                  <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Msg</th>
+                  <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Reply</th>
+                  <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Seen</th>
+                  <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Int.</th>
+                  <th className="px-2 py-2.5 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">F/U</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">F/U Date</th>
+
+                  {/* Proof Section */}
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Screenshot</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r-2 border-border/50">Notes</th>
+
+                  {/* Outcome */}
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Value</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lost Reason</th>
+                  <th className="w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="bg-card">
+                {leads.map((lead, index) => (
+                  <LeadRow
+                    key={lead.id}
+                    lead={lead}
+                    index={index}
+                    isLeadInvalid={isLeadInvalid}
+                    onUpdate={onUpdate}
+                    onDelete={onDelete}
+                    onUploadScreenshot={onUploadScreenshot}
+                    sourceOptions={sourceOptions}
+                    statusOptions={statusOptions}
+                    reasonLostOptions={reasonLostOptions}
+                    clientTypeOptions={clientTypeOptions}
+                    servicePitchOptions={servicePitchOptions}
+                  />
+                ))}
+
+                {leads.length === 0 && (
+                  <tr>
+                    <td colSpan={22} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <span className="text-4xl">📋</span>
+                        <p className="font-medium">No leads yet</p>
+                        <p className="text-sm">Click "Add Lead" to get started</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
     </TooltipProvider>
   );
 }
@@ -192,7 +193,7 @@ function LeadRow({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <tr 
+    <tr
       className={`
         border-t border-slate-200/50 dark:border-slate-800 transition-colors
         ${isLeadInvalid(lead) ? 'bg-rose-50/30 dark:bg-rose-950/10 hover:bg-rose-50/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}
@@ -411,22 +412,38 @@ function LeadRow({
               if (file) onUploadScreenshot(lead.id, file);
             }}
           />
-          
+
           {lead.screenshot_url ? (
             <div className="flex items-center gap-1">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
-                    <Image className="w-3.5 h-3.5" />
-                    <span className="max-w-[60px] truncate">{lead.screenshot_file_name || 'Image'}</span>
+                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs hover:bg-primary/5 hover:border-primary/30 transition-all group">
+                    <Image className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                    <span className="max-w-[60px] truncate">{lead.screenshot_file_name || 'View'}</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl">
-                  <img 
-                    src={lead.screenshot_url} 
-                    alt="Screenshot" 
-                    className="w-full h-auto rounded-lg"
-                  />
+                <DialogContent className="max-w-4xl p-0 overflow-hidden border-none bg-transparent shadow-none focus:ring-0">
+                  <div className="relative group/modal">
+                    <img
+                      src={lead.screenshot_url}
+                      alt="Screenshot"
+                      className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl border-4 border-white/10"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/modal:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                      <Button
+                        variant="secondary"
+                        className="gap-2 rounded-full"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = lead.screenshot_url!;
+                          link.download = lead.screenshot_file_name || 'screenshot.png';
+                          link.click();
+                        }}
+                      >
+                        <Download className="w-4 h-4" /> Download Original
+                      </Button>
+                    </div>
+                  </div>
                 </DialogContent>
               </Dialog>
               <Tooltip>
