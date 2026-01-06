@@ -20,7 +20,7 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admindashboard238714.hs" element={<Admin />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

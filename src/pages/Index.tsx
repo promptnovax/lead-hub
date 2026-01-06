@@ -5,13 +5,11 @@ import { Plus, Loader2, TrendingUp, Filter, Users, Target, CheckCircle2, AlertCi
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AddLeadDialog } from '@/components/dashboard/AddLeadDialog';
 import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const { leads, loading: leadsLoading, addLead, updateLead, deleteLead, uploadScreenshot } = useLeads();
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   // Filter leads based on date selection
   const getFilteredLeads = () => {
@@ -84,18 +82,12 @@ const Index = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={() => setIsAddDialogOpen(true)} size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-all rounded-full px-6 bg-primary hover:bg-primary/90">
+              <Button onClick={() => addLead()} size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-all rounded-full px-6 bg-primary hover:bg-primary/90">
                 <Plus className="w-5 h-5" />
                 Add New Lead
               </Button>
             </div>
           </div>
-
-          <AddLeadDialog
-            open={isAddDialogOpen}
-            onOpenChange={setIsAddDialogOpen}
-            onAddLead={addLead}
-          />
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
@@ -144,8 +136,7 @@ const Index = () => {
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-2">
-                <span className="text-xs text-emerald-600 font-bold">${totalValue.toLocaleString()}</span>
-                <span className="text-xs text-slate-400 italic">Total Revenue</span>
+                <p className="text-xs text-slate-400">Successfully closed items</p>
               </div>
             </div>
 
