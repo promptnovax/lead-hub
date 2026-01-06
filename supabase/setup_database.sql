@@ -96,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
 
 CREATE TABLE IF NOT EXISTS public.leads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
   
   -- Basic Information Section
   lead_date DATE NOT NULL DEFAULT CURRENT_DATE,

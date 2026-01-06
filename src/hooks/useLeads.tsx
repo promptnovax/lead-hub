@@ -37,7 +37,6 @@ export function useLeads() {
     const today = new Date().toISOString().split('T')[0];
     
     const newLead = {
-      user_id: DEFAULT_USER_ID,
       lead_date: today,
       name: '',
       salesperson_name: '',
@@ -64,13 +63,16 @@ export function useLeads() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
       
       setLeads([data as Lead, ...leads]);
       toast.success('New lead added');
     } catch (error: any) {
       console.error('Error adding lead:', error);
-      toast.error('Failed to add lead: ' + error.message);
+      toast.error('Failed to add lead: ' + (error.message || 'Unknown error'));
     }
   };
 
