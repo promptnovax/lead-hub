@@ -11,6 +11,7 @@ export interface Lead {
   // Basic Info
   lead_date: string;
   name: string;
+  salesperson_name: string;
   lead_source: LeadSource;
   other_source?: string | null;
   phone: string;

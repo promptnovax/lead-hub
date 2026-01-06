@@ -78,7 +78,7 @@ export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: Le
             {/* Category Headers */}
             <thead>
               <tr className="bg-gradient-to-r from-primary/20 to-accent/20">
-                <th colSpan={10} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
+                <th colSpan={11} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
                   📋 Basic Info
                 </th>
                 <th colSpan={6} className="px-4 py-3 text-left font-bold text-primary border-r-2 border-border/50">
@@ -95,7 +95,8 @@ export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: Le
               <tr className="bg-muted/70 border-t border-border">
                 {/* Basic Info */}
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
-                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Name</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lead Name</th>
+                <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Salesperson</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Other</th>
                 <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Phone</th>
@@ -211,7 +212,15 @@ function LeadRow({
         <Input
           value={lead.name}
           onChange={(e) => onUpdate(lead.id, 'name', e.target.value)}
-          placeholder="Enter name"
+          placeholder="Lead name"
+          className="h-9 w-[130px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg font-medium"
+        />
+      </td>
+      <td className="px-2 py-1.5">
+        <Input
+          value={lead.salesperson_name}
+          onChange={(e) => onUpdate(lead.id, 'salesperson_name', e.target.value)}
+          placeholder="Salesperson"
           className="h-9 w-[130px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg font-medium"
         />
       </td>
