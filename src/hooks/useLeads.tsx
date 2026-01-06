@@ -4,8 +4,7 @@ import { Lead, LeadSource, LeadStatus, ClientType, ServicePitch } from '@/types/
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
 
-// Default user ID for non-authenticated usage
-const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';
+
 
 export function useLeads() {
   const { user } = useAuth();
@@ -67,7 +66,7 @@ export function useLeads() {
     // Create a temporary lead that isn't in the DB yet
     const tempLead: Lead = {
       id: `temp-${Date.now()}`, // Local temporary ID
-      user_id: user?.id || DEFAULT_USER_ID,
+      user_id: user?.id || null,
       lead_date: today,
       name: '',
       salesperson_name: '',
@@ -110,7 +109,7 @@ export function useLeads() {
         .from('leads')
         .insert({
           ...leadToInsert,
-          user_id: user?.id || DEFAULT_USER_ID,
+          user_id: user?.id || null,
         })
         .select()
         .single();
@@ -215,7 +214,8 @@ export function useLeads() {
 
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id || DEFAULT_USER_ID}/${leadId}-${Date.now()}.${fileExt}`;
+      const folder = user?.id || 'public';
+      const fileName = `${folder}/${leadId}-${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('screenshots')
