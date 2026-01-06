@@ -17,13 +17,15 @@ const Index = () => {
       email: 'ahmed@company.com',
       country: 'Pakistan',
       city: 'Karachi',
+      clientType: 'individual_agent',
+      servicePitch: 'ai_automation',
       firstMessageSent: true,
       replyReceived: false,
       seen: true,
       interested: false,
       followUpNeeded: true,
       followUpDate: new Date(Date.now() + 86400000),
-      screenshotLink: '',
+      screenshotFile: undefined,
       notes: '',
       status: 'new',
       createdAt: new Date(),
@@ -40,12 +42,14 @@ const Index = () => {
       email: '',
       country: '',
       city: '',
+      clientType: 'individual_agent',
+      servicePitch: 'ai_automation',
       firstMessageSent: false,
       replyReceived: false,
       seen: false,
       interested: false,
       followUpNeeded: false,
-      screenshotLink: '',
+      screenshotFile: undefined,
       notes: '',
       status: 'new',
       createdAt: new Date(),
@@ -65,6 +69,15 @@ const Index = () => {
     toast.success('Lead deleted');
   };
 
+  // Stats for current user only
+  const todayLeads = leads.filter(l => {
+    const today = new Date();
+    const leadDate = new Date(l.date);
+    return leadDate.toDateString() === today.toDateString();
+  }).length;
+
+  const invalidLeads = leads.filter(l => !l.screenshotFile).length;
+
   return (
     <div className="min-h-screen bg-background">
       <Toaster position="top-right" />
@@ -73,13 +86,18 @@ const Index = () => {
       <header className="border-b border-border bg-card px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Leads Workspace</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {leads.length} lead{leads.length !== 1 ? 's' : ''} • 
-              <span className="text-destructive ml-1">
-                {leads.filter(l => !l.screenshotLink.trim()).length} invalid (no screenshot)
+            <h1 className="text-2xl font-bold text-foreground">My Leads</h1>
+            <div className="flex items-center gap-4 mt-1 text-sm">
+              <span className="text-muted-foreground">
+                📊 Total: <span className="font-medium text-foreground">{leads.length}</span>
               </span>
-            </p>
+              <span className="text-muted-foreground">
+                📅 Today: <span className="font-medium text-foreground">{todayLeads}</span>
+              </span>
+              <span className="text-destructive">
+                ⚠️ Invalid: <span className="font-medium">{invalidLeads}</span>
+              </span>
+            </div>
           </div>
           <Button onClick={addNewLead} className="gap-2">
             <Plus className="w-4 h-4" />
