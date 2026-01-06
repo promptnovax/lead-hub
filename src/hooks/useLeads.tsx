@@ -8,6 +8,7 @@ import { useAuth } from './useAuth';
 const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';
 
 export function useLeads() {
+  const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,7 +36,6 @@ export function useLeads() {
   };
 
   const addLead = async (leadData?: Partial<Lead>) => {
-    const { user } = useAuth();
     const today = new Date().toISOString().split('T')[0];
 
     // Default values merged with provided leadData
