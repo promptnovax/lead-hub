@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadSource, LeadStatus, ClientType, ServicePitch } from '@/types/database';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
@@ -21,9 +23,9 @@ export function useLeads() {
         .from('leads')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      
+
       setLeads((data as Lead[]) || []);
     } catch (error: any) {
       console.error('Error loading leads:', error);
@@ -35,7 +37,7 @@ export function useLeads() {
   const addLead = async (leadData?: Partial<Lead>) => {
     const { user } = useAuth();
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Default values merged with provided leadData
     const newLead = {
       user_id: user?.id || DEFAULT_USER_ID,
@@ -73,7 +75,7 @@ export function useLeads() {
           hint: error.hint,
           code: error.code
         });
-        
+
         if (error.code === '23505') {
           toast.error('A lead with this information already exists.');
         } else {
@@ -81,7 +83,7 @@ export function useLeads() {
         }
         throw error;
       }
-      
+
       if (data) {
         setLeads([data as Lead, ...leads]);
         toast.success('New lead added');
@@ -101,8 +103,8 @@ export function useLeads() {
         .eq('id', id);
 
       if (error) throw error;
-      
-      setLeads(leads.map(lead => 
+
+      setLeads(leads.map(lead =>
         lead.id === id ? { ...lead, [field]: value } : lead
       ));
     } catch (error: any) {
@@ -119,7 +121,7 @@ export function useLeads() {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       setLeads(leads.filter(lead => lead.id !== id));
       toast.success('Lead deleted');
     } catch (error: any) {
@@ -152,7 +154,7 @@ export function useLeads() {
       // Update lead with screenshot URL
       await updateLead(leadId, 'screenshot_url', publicUrl);
       await updateLead(leadId, 'screenshot_file_name', file.name);
-      
+
       toast.success('Screenshot uploaded successfully');
     } catch (error: any) {
       console.error('Error uploading screenshot:', error);
