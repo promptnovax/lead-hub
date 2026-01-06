@@ -36,13 +36,14 @@ export type Database = {
           phone: string
           reason_lost: Database["public"]["Enums"]["reason_lost"] | null
           reply_received: boolean
+          salesperson_name: string
           screenshot_file_name: string | null
           screenshot_url: string | null
           seen: boolean
           service_pitch: Database["public"]["Enums"]["service_pitch"]
           status: Database["public"]["Enums"]["lead_status"]
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           city?: string
@@ -65,13 +66,14 @@ export type Database = {
           phone?: string
           reason_lost?: Database["public"]["Enums"]["reason_lost"] | null
           reply_received?: boolean
+          salesperson_name?: string
           screenshot_file_name?: string | null
           screenshot_url?: string | null
           seen?: boolean
           service_pitch?: Database["public"]["Enums"]["service_pitch"]
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           city?: string
@@ -94,13 +96,14 @@ export type Database = {
           phone?: string
           reason_lost?: Database["public"]["Enums"]["reason_lost"] | null
           reply_received?: boolean
+          salesperson_name?: string
           screenshot_file_name?: string | null
           screenshot_url?: string | null
           seen?: boolean
           service_pitch?: Database["public"]["Enums"]["service_pitch"]
           status?: Database["public"]["Enums"]["lead_status"]
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

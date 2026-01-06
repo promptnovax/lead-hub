@@ -64,15 +64,23 @@ export function useLeads() {
         .single();
 
       if (error) {
-        console.error('Supabase error details:', error);
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
       
-      setLeads([data as Lead, ...leads]);
-      toast.success('New lead added');
+      if (data) {
+        setLeads([data as Lead, ...leads]);
+        toast.success('New lead added');
+      }
     } catch (error: any) {
       console.error('Error adding lead:', error);
-      toast.error('Failed to add lead: ' + (error.message || 'Unknown error'));
+      const errorMessage = error?.message || error?.hint || 'Unknown error';
+      toast.error('Failed to add lead: ' + errorMessage);
     }
   };
 
