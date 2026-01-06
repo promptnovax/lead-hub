@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLeads } from '@/hooks/useLeads';
 import { LeadsTable } from '@/components/dashboard/LeadsTable';
-import { Plus, Loader2, TrendingUp, Calendar, Filter } from 'lucide-react';
+import { Plus, Loader2, TrendingUp, Calendar, Filter, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -67,6 +68,12 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">Track and manage your sales leads efficiently</p>
             </div>
             <div className="flex items-center gap-3">
+              <Link to="/admin">
+                <Button variant="outline" size="lg" className="gap-2">
+                  <Shield className="w-5 h-5" />
+                  Admin Dashboard
+                </Button>
+              </Link>
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <Select value={dateFilter} onValueChange={(value: any) => setDateFilter(value)}>
