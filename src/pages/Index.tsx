@@ -1,82 +1,45 @@
-import { useState } from 'react';
-import { Lead } from '@/types/lead';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useLeads } from '@/hooks/useLeads';
 import { LeadsTable } from '@/components/dashboard/LeadsTable';
-import { Plus } from 'lucide-react';
+import { Plus, LogOut, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
-import { toast } from 'sonner';
 
 const Index = () => {
-  const [leads, setLeads] = useState<Lead[]>([
-    {
-      id: '1',
-      date: new Date(),
-      name: 'Ahmed Khan',
-      leadSource: 'instagram',
-      phone: '+92 300 1234567',
-      email: 'ahmed@company.com',
-      country: 'Pakistan',
-      city: 'Karachi',
-      clientType: 'individual_agent',
-      servicePitch: 'ai_automation',
-      firstMessageSent: true,
-      replyReceived: false,
-      seen: true,
-      interested: false,
-      followUpNeeded: true,
-      followUpDate: new Date(Date.now() + 86400000),
-      screenshotFile: undefined,
-      notes: '',
-      status: 'new',
-      createdAt: new Date(),
-    },
-  ]);
+  const navigate = useNavigate();
+  const { user, loading: authLoading, signOut } = useAuth();
+  const { leads, loading: leadsLoading, addLead, updateLead, deleteLead, uploadScreenshot } = useLeads();
 
-  const addNewLead = () => {
-    const newLead: Lead = {
-      id: Date.now().toString(),
-      date: new Date(),
-      name: '',
-      leadSource: 'instagram',
-      phone: '',
-      email: '',
-      country: '',
-      city: '',
-      clientType: 'individual_agent',
-      servicePitch: 'ai_automation',
-      firstMessageSent: false,
-      replyReceived: false,
-      seen: false,
-      interested: false,
-      followUpNeeded: false,
-      screenshotFile: undefined,
-      notes: '',
-      status: 'new',
-      createdAt: new Date(),
-    };
-    setLeads([...leads, newLead]);
-    toast.success('New lead added');
+  // Redirect to auth if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
   };
 
-  const updateLead = (id: string, field: keyof Lead, value: any) => {
-    setLeads(leads.map(lead => 
-      lead.id === id ? { ...lead, [field]: value } : lead
-    ));
-  };
+  // Stats for current user only - based on actual lead_date in database
+  const today = new Date().toISOString().split('T')[0];
+  const todayLeads = leads.filter(l => l.lead_date === today).length;
+  const invalidLeads = leads.filter(l => !l.screenshot_url).length;
 
-  const deleteLead = (id: string) => {
-    setLeads(leads.filter(lead => lead.id !== id));
-    toast.success('Lead deleted');
-  };
+  if (authLoading || leadsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-  // Stats for current user only
-  const todayLeads = leads.filter(l => {
-    const today = new Date();
-    const leadDate = new Date(l.date);
-    return leadDate.toDateString() === today.toDateString();
-  }).length;
-
-  const invalidLeads = leads.filter(l => !l.screenshotFile).length;
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,15 +57,23 @@ const Index = () => {
               <span className="text-muted-foreground">
                 📅 Today: <span className="font-medium text-foreground">{todayLeads}</span>
               </span>
-              <span className="text-destructive">
-                ⚠️ Invalid: <span className="font-medium">{invalidLeads}</span>
-              </span>
+              {invalidLeads > 0 && (
+                <span className="text-destructive">
+                  ⚠️ Invalid: <span className="font-medium">{invalidLeads}</span>
+                </span>
+              )}
             </div>
           </div>
-          <Button onClick={addNewLead} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Lead
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={addLead} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Add Lead
+            </Button>
+            <Button variant="outline" onClick={handleSignOut} className="gap-2">
+              <LogOut className="w-4 h-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -112,6 +83,7 @@ const Index = () => {
           leads={leads}
           onUpdate={updateLead}
           onDelete={deleteLead}
+          onUploadScreenshot={uploadScreenshot}
         />
       </main>
     </div>

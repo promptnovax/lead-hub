@@ -1,8 +1,8 @@
-import { Lead, LeadSource, LeadStatus, ReasonLost, ClientType, ServicePitch } from '@/types/lead';
+import { Lead, LeadSource, LeadStatus, ReasonLost, ClientType, ServicePitch } from '@/types/database';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Trash2, AlertCircle, Upload, Image, Eye } from 'lucide-react';
+import { Trash2, AlertCircle, Upload, Image } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
@@ -28,6 +28,7 @@ interface LeadsTableProps {
   leads: Lead[];
   onUpdate: (id: string, field: keyof Lead, value: any) => void;
   onDelete: (id: string) => void;
+  onUploadScreenshot: (id: string, file: File) => void;
 }
 
 const sourceOptions: { value: LeadSource; label: string; emoji: string }[] = [
@@ -66,27 +67,8 @@ const servicePitchOptions: { value: ServicePitch; label: string; emoji: string }
   { value: 'full_package', label: 'Full Package', emoji: '📦' },
 ];
 
-export function LeadsTable({ leads, onUpdate, onDelete }: LeadsTableProps) {
-  const formatDate = (date: Date | undefined) => {
-    if (!date) return '';
-    return new Date(date).toISOString().split('T')[0];
-  };
-
-  const isLeadInvalid = (lead: Lead) => !lead.screenshotFile;
-
-  const handleFileUpload = (leadId: string, file: File) => {
-    if (!file.type.startsWith('image/')) {
-      return;
-    }
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      onUpdate(leadId, 'screenshotFile', result);
-      onUpdate(leadId, 'screenshotFileName', file.name);
-    };
-    reader.readAsDataURL(file);
-  };
+export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: LeadsTableProps) {
+  const isLeadInvalid = (lead: Lead) => !lead.screenshot_url;
 
   return (
     <TooltipProvider>
@@ -149,10 +131,9 @@ export function LeadsTable({ leads, onUpdate, onDelete }: LeadsTableProps) {
                   lead={lead}
                   index={index}
                   isLeadInvalid={isLeadInvalid}
-                  formatDate={formatDate}
                   onUpdate={onUpdate}
                   onDelete={onDelete}
-                  onFileUpload={handleFileUpload}
+                  onUploadScreenshot={onUploadScreenshot}
                   sourceOptions={sourceOptions}
                   statusOptions={statusOptions}
                   reasonLostOptions={reasonLostOptions}
@@ -184,10 +165,9 @@ interface LeadRowProps {
   lead: Lead;
   index: number;
   isLeadInvalid: (lead: Lead) => boolean;
-  formatDate: (date: Date | undefined) => string;
   onUpdate: (id: string, field: keyof Lead, value: any) => void;
   onDelete: (id: string) => void;
-  onFileUpload: (leadId: string, file: File) => void;
+  onUploadScreenshot: (id: string, file: File) => void;
   sourceOptions: typeof sourceOptions;
   statusOptions: typeof statusOptions;
   reasonLostOptions: typeof reasonLostOptions;
@@ -199,10 +179,9 @@ function LeadRow({
   lead,
   index,
   isLeadInvalid,
-  formatDate,
   onUpdate,
   onDelete,
-  onFileUpload,
+  onUploadScreenshot,
   sourceOptions,
   statusOptions,
   reasonLostOptions,
@@ -223,9 +202,9 @@ function LeadRow({
       <td className="px-2 py-1.5">
         <Input
           type="date"
-          value={formatDate(lead.date)}
-          onChange={(e) => onUpdate(lead.id, 'date', new Date(e.target.value))}
-          className="h-9 w-[120px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg"
+          value={lead.lead_date || ''}
+          onChange={(e) => onUpdate(lead.id, 'lead_date', e.target.value)}
+          className="h-9 w-[130px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg"
         />
       </td>
       <td className="px-2 py-1.5">
@@ -238,14 +217,14 @@ function LeadRow({
       </td>
       <td className="px-2 py-1.5">
         <Select
-          value={lead.leadSource}
-          onValueChange={(value: LeadSource) => onUpdate(lead.id, 'leadSource', value)}
+          value={lead.lead_source}
+          onValueChange={(value: LeadSource) => onUpdate(lead.id, 'lead_source', value)}
         >
           <SelectTrigger className="h-9 w-[120px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg">
             <SelectValue placeholder="Select">
               <span className="flex items-center gap-1.5">
-                <span>{sourceOptions.find(s => s.value === lead.leadSource)?.emoji}</span>
-                <span className="truncate text-xs">{sourceOptions.find(s => s.value === lead.leadSource)?.label}</span>
+                <span>{sourceOptions.find(s => s.value === lead.lead_source)?.emoji}</span>
+                <span className="truncate text-xs">{sourceOptions.find(s => s.value === lead.lead_source)?.label}</span>
               </span>
             </SelectValue>
           </SelectTrigger>
@@ -263,10 +242,10 @@ function LeadRow({
       </td>
       <td className="px-2 py-1.5">
         <Input
-          value={lead.otherSource || ''}
-          onChange={(e) => onUpdate(lead.id, 'otherSource', e.target.value)}
-          placeholder={lead.leadSource === 'other' ? 'Specify' : '—'}
-          disabled={lead.leadSource !== 'other'}
+          value={lead.other_source || ''}
+          onChange={(e) => onUpdate(lead.id, 'other_source', e.target.value)}
+          placeholder={lead.lead_source === 'other' ? 'Specify' : '—'}
+          disabled={lead.lead_source !== 'other'}
           className="h-9 w-[90px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg disabled:opacity-40 disabled:cursor-not-allowed"
         />
       </td>
@@ -305,14 +284,14 @@ function LeadRow({
       </td>
       <td className="px-2 py-1.5">
         <Select
-          value={lead.clientType}
-          onValueChange={(value: ClientType) => onUpdate(lead.id, 'clientType', value)}
+          value={lead.client_type}
+          onValueChange={(value: ClientType) => onUpdate(lead.id, 'client_type', value)}
         >
           <SelectTrigger className="h-9 w-[130px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg">
             <SelectValue placeholder="Select">
               <span className="flex items-center gap-1.5">
-                <span>{clientTypeOptions.find(c => c.value === lead.clientType)?.emoji}</span>
-                <span className="truncate text-xs">{clientTypeOptions.find(c => c.value === lead.clientType)?.label}</span>
+                <span>{clientTypeOptions.find(c => c.value === lead.client_type)?.emoji}</span>
+                <span className="truncate text-xs">{clientTypeOptions.find(c => c.value === lead.client_type)?.label}</span>
               </span>
             </SelectValue>
           </SelectTrigger>
@@ -330,14 +309,14 @@ function LeadRow({
       </td>
       <td className="px-2 py-1.5 border-r-2 border-border/50">
         <Select
-          value={lead.servicePitch}
-          onValueChange={(value: ServicePitch) => onUpdate(lead.id, 'servicePitch', value)}
+          value={lead.service_pitch}
+          onValueChange={(value: ServicePitch) => onUpdate(lead.id, 'service_pitch', value)}
         >
           <SelectTrigger className="h-9 w-[120px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg">
             <SelectValue placeholder="Select">
               <span className="flex items-center gap-1.5">
-                <span>{servicePitchOptions.find(s => s.value === lead.servicePitch)?.emoji}</span>
-                <span className="truncate text-xs">{servicePitchOptions.find(s => s.value === lead.servicePitch)?.label}</span>
+                <span>{servicePitchOptions.find(s => s.value === lead.service_pitch)?.emoji}</span>
+                <span className="truncate text-xs">{servicePitchOptions.find(s => s.value === lead.service_pitch)?.label}</span>
               </span>
             </SelectValue>
           </SelectTrigger>
@@ -358,8 +337,8 @@ function LeadRow({
       <td className="px-2 py-1.5">
         <div className="flex justify-center">
           <Checkbox
-            checked={lead.firstMessageSent}
-            onCheckedChange={(checked) => onUpdate(lead.id, 'firstMessageSent', checked)}
+            checked={lead.first_message_sent}
+            onCheckedChange={(checked) => onUpdate(lead.id, 'first_message_sent', checked)}
             className="h-5 w-5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
         </div>
@@ -367,8 +346,8 @@ function LeadRow({
       <td className="px-2 py-1.5">
         <div className="flex justify-center">
           <Checkbox
-            checked={lead.replyReceived}
-            onCheckedChange={(checked) => onUpdate(lead.id, 'replyReceived', checked)}
+            checked={lead.reply_received}
+            onCheckedChange={(checked) => onUpdate(lead.id, 'reply_received', checked)}
             className="h-5 w-5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
           />
         </div>
@@ -394,8 +373,8 @@ function LeadRow({
       <td className="px-2 py-1.5">
         <div className="flex justify-center">
           <Checkbox
-            checked={lead.followUpNeeded}
-            onCheckedChange={(checked) => onUpdate(lead.id, 'followUpNeeded', checked)}
+            checked={lead.follow_up_needed}
+            onCheckedChange={(checked) => onUpdate(lead.id, 'follow_up_needed', checked)}
             className="h-5 w-5 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
           />
         </div>
@@ -403,10 +382,10 @@ function LeadRow({
       <td className="px-2 py-1.5 border-r-2 border-border/50">
         <Input
           type="date"
-          value={formatDate(lead.followUpDate)}
-          onChange={(e) => onUpdate(lead.id, 'followUpDate', e.target.value ? new Date(e.target.value) : undefined)}
-          disabled={!lead.followUpNeeded}
-          className="h-9 w-[120px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg disabled:opacity-40"
+          value={lead.follow_up_date || ''}
+          onChange={(e) => onUpdate(lead.id, 'follow_up_date', e.target.value || null)}
+          disabled={!lead.follow_up_needed}
+          className="h-9 w-[130px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg disabled:opacity-40"
         />
       </td>
 
@@ -420,22 +399,22 @@ function LeadRow({
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
-              if (file) onFileUpload(lead.id, file);
+              if (file) onUploadScreenshot(lead.id, file);
             }}
           />
           
-          {lead.screenshotFile ? (
+          {lead.screenshot_url ? (
             <div className="flex items-center gap-1">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
                     <Image className="w-3.5 h-3.5" />
-                    <span className="max-w-[60px] truncate">{lead.screenshotFileName || 'Image'}</span>
+                    <span className="max-w-[60px] truncate">{lead.screenshot_file_name || 'Image'}</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-3xl">
                   <img 
-                    src={lead.screenshotFile} 
+                    src={lead.screenshot_url} 
                     alt="Screenshot" 
                     className="w-full h-auto rounded-lg"
                   />
@@ -518,8 +497,8 @@ function LeadRow({
       <td className="px-2 py-1.5">
         <Input
           type="number"
-          value={lead.dealValue || ''}
-          onChange={(e) => onUpdate(lead.id, 'dealValue', e.target.value ? Number(e.target.value) : undefined)}
+          value={lead.deal_value || ''}
+          onChange={(e) => onUpdate(lead.id, 'deal_value', e.target.value ? Number(e.target.value) : null)}
           placeholder={lead.status === 'closed' ? '$0' : '—'}
           disabled={lead.status !== 'closed'}
           className="h-9 w-[80px] border border-border/50 bg-background/50 focus:bg-background text-sm rounded-lg disabled:opacity-40"
@@ -527,8 +506,8 @@ function LeadRow({
       </td>
       <td className="px-2 py-1.5">
         <Select
-          value={lead.reasonLost || ''}
-          onValueChange={(value: ReasonLost) => onUpdate(lead.id, 'reasonLost', value)}
+          value={lead.reason_lost || ''}
+          onValueChange={(value: ReasonLost) => onUpdate(lead.id, 'reason_lost', value)}
           disabled={lead.status !== 'lost'}
         >
           <SelectTrigger className="h-9 w-[100px] border border-border/50 bg-background/50 text-sm rounded-lg disabled:opacity-40">

@@ -14,7 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leads: {
+        Row: {
+          city: string
+          client_type: Database["public"]["Enums"]["client_type"]
+          country: string
+          created_at: string
+          deal_value: number | null
+          email: string
+          first_message_sent: boolean
+          follow_up_date: string | null
+          follow_up_needed: boolean
+          id: string
+          interested: boolean
+          lead_date: string
+          lead_source: Database["public"]["Enums"]["lead_source"]
+          name: string
+          notes: string
+          other_reason_lost: string | null
+          other_source: string | null
+          phone: string
+          reason_lost: Database["public"]["Enums"]["reason_lost"] | null
+          reply_received: boolean
+          screenshot_file_name: string | null
+          screenshot_url: string | null
+          seen: boolean
+          service_pitch: Database["public"]["Enums"]["service_pitch"]
+          status: Database["public"]["Enums"]["lead_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string
+          client_type?: Database["public"]["Enums"]["client_type"]
+          country?: string
+          created_at?: string
+          deal_value?: number | null
+          email?: string
+          first_message_sent?: boolean
+          follow_up_date?: string | null
+          follow_up_needed?: boolean
+          id?: string
+          interested?: boolean
+          lead_date?: string
+          lead_source?: Database["public"]["Enums"]["lead_source"]
+          name?: string
+          notes?: string
+          other_reason_lost?: string | null
+          other_source?: string | null
+          phone?: string
+          reason_lost?: Database["public"]["Enums"]["reason_lost"] | null
+          reply_received?: boolean
+          screenshot_file_name?: string | null
+          screenshot_url?: string | null
+          seen?: boolean
+          service_pitch?: Database["public"]["Enums"]["service_pitch"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          client_type?: Database["public"]["Enums"]["client_type"]
+          country?: string
+          created_at?: string
+          deal_value?: number | null
+          email?: string
+          first_message_sent?: boolean
+          follow_up_date?: string | null
+          follow_up_needed?: boolean
+          id?: string
+          interested?: boolean
+          lead_date?: string
+          lead_source?: Database["public"]["Enums"]["lead_source"]
+          name?: string
+          notes?: string
+          other_reason_lost?: string | null
+          other_source?: string | null
+          phone?: string
+          reason_lost?: Database["public"]["Enums"]["reason_lost"] | null
+          reply_received?: boolean
+          screenshot_file_name?: string | null
+          screenshot_url?: string | null
+          seen?: boolean
+          service_pitch?: Database["public"]["Enums"]["service_pitch"]
+          status?: Database["public"]["Enums"]["lead_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +136,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      client_type: "individual_agent" | "brokerage" | "developer"
+      lead_source:
+        | "google_maps"
+        | "instagram"
+        | "facebook"
+        | "whatsapp"
+        | "linkedin"
+        | "other"
+      lead_status: "new" | "replied" | "interested" | "closed" | "lost"
+      reason_lost: "price" | "no_reply" | "fake" | "other"
+      service_pitch: "ai_automation" | "website" | "full_package"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +273,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      client_type: ["individual_agent", "brokerage", "developer"],
+      lead_source: [
+        "google_maps",
+        "instagram",
+        "facebook",
+        "whatsapp",
+        "linkedin",
+        "other",
+      ],
+      lead_status: ["new", "replied", "interested", "closed", "lost"],
+      reason_lost: ["price", "no_reply", "fake", "other"],
+      service_pitch: ["ai_automation", "website", "full_package"],
+    },
   },
 } as const
