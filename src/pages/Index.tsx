@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Download } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Index = () => {
   const { leads, loading: leadsLoading, addLead, updateLead, deleteLead, uploadScreenshot } = useLeads();

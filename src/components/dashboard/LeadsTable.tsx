@@ -159,6 +159,7 @@ export function LeadsTable({ leads, onUpdate, onDelete, onUploadScreenshot }: Le
             </table>
           </div>
         </div>
+      </div>
     </TooltipProvider>
   );
 }
