@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadSource, LeadStatus, ClientType, ServicePitch } from '@/types/database';
 import { toast } from 'sonner';
@@ -11,11 +11,37 @@ export function useLeads() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const persistingIds = useRef<Set<string>>(new Set());
 
-  // Load leads from Supabase on mount
+  // Load leads from Supabase and localStorage on mount
   useEffect(() => {
-    fetchLeads();
+    const init = async () => {
+      await fetchLeads();
+
+      // Load drafts from localStorage
+      const savedDrafts = localStorage.getItem('lead_drafts');
+      if (savedDrafts) {
+        try {
+          const drafts: Lead[] = JSON.parse(savedDrafts);
+          // Only keep drafts that aren't already in the remote leads
+          setLeads(prev => {
+            const remoteIds = new Set(prev.map(l => l.id));
+            const uniqueDrafts = drafts.filter(d => !remoteIds.has(d.id));
+            return [...prev, ...uniqueDrafts];
+          });
+        } catch (e) {
+          console.error('Error parsing lead drafts:', e);
+        }
+      }
+    };
+    init();
   }, []);
+
+  // Save drafts to localStorage whenever they change
+  useEffect(() => {
+    const drafts = leads.filter(l => l.id.toString().startsWith('temp-'));
+    localStorage.setItem('lead_drafts', JSON.stringify(drafts));
+  }, [leads]);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -69,6 +95,13 @@ export function useLeads() {
   };
 
   const persistLead = async (tempId: string, lead: Lead) => {
+    if (persistingIds.current.has(tempId)) return null;
+
+    // Check if we already have enough data to persist
+    if (!lead.name?.trim() && !lead.salesperson_name?.trim()) return null;
+
+    persistingIds.current.add(tempId);
+
     try {
       // Remove temporary ID and timestamps to let Supabase handle them
       const { id, created_at, updated_at, ...leadToInsert } = lead;
@@ -82,16 +115,40 @@ export function useLeads() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If it's a conflict, maybe it was already inserted? 
+        // Or if it's missing data, don't toast too much.
+        if (error.code === '23505') {
+          console.warn('Conflict detected, attempting to refetch...');
+          await fetchLeads();
+          return null;
+        }
+        throw error;
+      }
 
       if (data) {
-        setLeads(prev => prev.map(l => l.id === tempId ? (data as Lead) : l));
+        setLeads(prev => {
+          const filtered = prev.filter(l => l.id !== tempId);
+          // Check if this lead was already added via another sync or refetch
+          if (filtered.some(l => l.id === data.id)) return filtered;
+          return [...filtered, data as Lead];
+        });
+
+        // Remove from drafts in localStorage effectively
+        const savedDrafts = localStorage.getItem('lead_drafts');
+        if (savedDrafts) {
+          const drafts = JSON.parse(savedDrafts).filter((d: any) => d.id !== tempId);
+          localStorage.setItem('lead_drafts', JSON.stringify(drafts));
+        }
+
         return data as Lead;
       }
     } catch (error: any) {
       console.error('Error persisting lead:', error);
       toast.error('Failed to save new lead: ' + error.message);
       return null;
+    } finally {
+      persistingIds.current.delete(tempId);
     }
   };
 
