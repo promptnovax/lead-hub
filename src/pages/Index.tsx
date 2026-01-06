@@ -10,12 +10,22 @@ const Index = () => {
   const [leads, setLeads] = useState<Lead[]>([
     {
       id: '1',
+      date: new Date(),
       name: 'Ahmed Khan',
-      email: 'ahmed@company.com',
+      leadSource: 'instagram',
       phone: '+92 300 1234567',
-      status: 'new',
+      email: 'ahmed@company.com',
+      country: 'Pakistan',
+      city: 'Karachi',
+      firstMessageSent: true,
+      replyReceived: false,
+      seen: true,
+      interested: false,
+      followUpNeeded: true,
+      followUpDate: new Date(Date.now() + 86400000),
+      screenshotLink: '',
       notes: '',
-      attachments: [],
+      status: 'new',
       createdAt: new Date(),
     },
   ]);
@@ -23,15 +33,25 @@ const Index = () => {
   const addNewLead = () => {
     const newLead: Lead = {
       id: Date.now().toString(),
+      date: new Date(),
       name: '',
-      email: '',
+      leadSource: 'instagram',
       phone: '',
-      status: 'new',
+      email: '',
+      country: '',
+      city: '',
+      firstMessageSent: false,
+      replyReceived: false,
+      seen: false,
+      interested: false,
+      followUpNeeded: false,
+      screenshotLink: '',
       notes: '',
-      attachments: [],
+      status: 'new',
       createdAt: new Date(),
     };
     setLeads([...leads, newLead]);
+    toast.success('New lead added');
   };
 
   const updateLead = (id: string, field: keyof Lead, value: any) => {
@@ -45,28 +65,6 @@ const Index = () => {
     toast.success('Lead deleted');
   };
 
-  const addAttachment = (leadId: string, file: File) => {
-    const attachment = {
-      id: Date.now().toString(),
-      url: URL.createObjectURL(file),
-      name: file.name,
-    };
-    setLeads(leads.map(lead => 
-      lead.id === leadId 
-        ? { ...lead, attachments: [...lead.attachments, attachment] }
-        : lead
-    ));
-    toast.success('Image attached');
-  };
-
-  const removeAttachment = (leadId: string, attachmentId: string) => {
-    setLeads(leads.map(lead => 
-      lead.id === leadId 
-        ? { ...lead, attachments: lead.attachments.filter(a => a.id !== attachmentId) }
-        : lead
-    ));
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Toaster position="top-right" />
@@ -77,7 +75,10 @@ const Index = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Leads Workspace</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {leads.length} lead{leads.length !== 1 ? 's' : ''}
+              {leads.length} lead{leads.length !== 1 ? 's' : ''} • 
+              <span className="text-destructive ml-1">
+                {leads.filter(l => !l.screenshotLink.trim()).length} invalid (no screenshot)
+              </span>
             </p>
           </div>
           <Button onClick={addNewLead} className="gap-2">
@@ -93,8 +94,6 @@ const Index = () => {
           leads={leads}
           onUpdate={updateLead}
           onDelete={deleteLead}
-          onAddAttachment={addAttachment}
-          onRemoveAttachment={removeAttachment}
         />
       </main>
     </div>
