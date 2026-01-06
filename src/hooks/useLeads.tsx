@@ -35,108 +35,131 @@ export function useLeads() {
     setLoading(false);
   };
 
-  const addLead = async (leadData?: Partial<Lead>) => {
+  const addLead = () => {
     const today = new Date().toISOString().split('T')[0];
 
-    // Default values merged with provided leadData
-    const newLead = {
+    // Create a temporary lead that isn't in the DB yet
+    const tempLead: Lead = {
+      id: `temp-${Date.now()}`, // Local temporary ID
       user_id: user?.id || DEFAULT_USER_ID,
       lead_date: today,
       name: '',
       salesperson_name: '',
-      lead_source: 'instagram' as LeadSource,
+      lead_source: 'instagram',
       phone: '',
       email: '',
       country: '',
       city: '',
-      client_type: 'individual_agent' as ClientType,
-      service_pitch: 'ai_automation' as ServicePitch,
+      client_type: 'individual_agent',
+      service_pitch: 'ai_automation',
       first_message_sent: false,
       reply_received: false,
       seen: false,
       interested: false,
       follow_up_needed: false,
       notes: '',
-      status: 'new' as LeadStatus,
-      ...leadData,
+      status: 'new',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
+    // Add to the bottom of the list as requested ("nichy")
+    setLeads(prev => [...prev, tempLead]);
+    return tempLead;
+  };
+
+  const persistLead = async (tempId: string, lead: Lead) => {
     try {
+      // Remove temporary ID and timestamps to let Supabase handle them
+      const { id, created_at, updated_at, ...leadToInsert } = lead;
+
       const { data, error } = await supabase
         .from('leads')
-        .insert(newLead)
+        .insert({
+          ...leadToInsert,
+          user_id: user?.id || DEFAULT_USER_ID,
+        })
         .select()
         .single();
 
-      if (error) {
-        console.error('Supabase error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
-
-        if (error.code === '23505') {
-          toast.error('A lead with this information already exists.');
-        } else {
-          toast.error('Failed to add lead: ' + error.message);
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       if (data) {
-        setLeads([data as Lead, ...leads]);
-        toast.success('New lead added');
-        return data;
+        setLeads(prev => prev.map(l => l.id === tempId ? (data as Lead) : l));
+        return data as Lead;
       }
     } catch (error: any) {
-      console.error('Error adding lead:', error);
+      console.error('Error persisting lead:', error);
+      toast.error('Failed to save new lead: ' + error.message);
       return null;
     }
   };
 
   const updateLead = async (id: string, field: keyof Lead, value: any) => {
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .update({ [field]: value })
-        .eq('id', id);
+    const isTemp = id.toString().startsWith('temp-');
 
-      if (error) throw error;
+    // Update local state first for immediate feedback
+    const updatedLeads = leads.map(lead =>
+      lead.id === id ? { ...lead, [field]: value, updated_at: new Date().toISOString() } : lead
+    );
+    setLeads(updatedLeads);
 
-      setLeads(leads.map(lead =>
-        lead.id === id ? { ...lead, [field]: value } : lead
-      ));
-    } catch (error: any) {
-      console.error('Error updating lead:', error);
-      toast.error('Failed to update lead');
+    const targetLead = updatedLeads.find(l => l.id === id);
+    if (!targetLead) return;
+
+    if (isTemp) {
+      // Only persist to DB if they've started entering basic info
+      if (field === 'name' || field === 'salesperson_name') {
+        await persistLead(id, targetLead);
+      }
+    } else {
+      try {
+        const { error } = await supabase
+          .from('leads')
+          .update({ [field]: value })
+          .eq('id', id);
+
+        if (error) throw error;
+      } catch (error: any) {
+        console.error('Error updating lead:', error);
+        toast.error('Failed to update lead');
+      }
     }
   };
 
   const deleteLead = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .delete()
-        .eq('id', id);
+    const isTemp = id.toString().startsWith('temp-');
 
-      if (error) throw error;
+    // Remove from local state
+    setLeads(prev => prev.filter(lead => lead.id !== id));
 
-      setLeads(leads.filter(lead => lead.id !== id));
-      toast.success('Lead deleted');
-    } catch (error: any) {
-      console.error('Error deleting lead:', error);
-      toast.error('Failed to delete lead');
+    if (!isTemp) {
+      try {
+        const { error } = await supabase
+          .from('leads')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+        toast.success('Lead deleted');
+      } catch (error: any) {
+        console.error('Error deleting lead:', error);
+        toast.error('Failed to delete lead');
+      }
     }
   };
 
   const uploadScreenshot = async (leadId: string, file: File) => {
-    try {
-      // Generate unique file name
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${DEFAULT_USER_ID}/${leadId}-${Date.now()}.${fileExt}`;
+    const isTemp = leadId.toString().startsWith('temp-');
+    if (isTemp) {
+      toast.error('Please enter a name first to save the lead before uploading screenshots.');
+      return;
+    }
 
-      // Upload to Supabase storage
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id || DEFAULT_USER_ID}/${leadId}-${Date.now()}.${fileExt}`;
+
       const { error: uploadError } = await supabase.storage
         .from('screenshots')
         .upload(fileName, file, {
@@ -146,12 +169,10 @@ export function useLeads() {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('screenshots')
         .getPublicUrl(fileName);
 
-      // Update lead with screenshot URL
       await updateLead(leadId, 'screenshot_url', publicUrl);
       await updateLead(leadId, 'screenshot_file_name', file.name);
 
